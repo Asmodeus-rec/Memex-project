@@ -1,132 +1,73 @@
-🪙 MEMEX — Cross-Chain Memecoin Index Project
+# 🌀 Memex — Cross-Chain Memecoin Market Index Token (Compiled Developer Bundle)
 
-Developer: Samuel Bright Ososelase Ozallo (alias Asmodeus)
-Email: officialmemex.project@gmail.com
-Origin: Edo State, Nigeria
-Focus: Cross-chain memecoin index and adaptive supply token
-
+**Memex** is an experimental cross-chain memecoin designed to track and reflect the overall performance of the memecoin market.  
+This package is a compiled developer bundle containing everything needed to deploy and test Memex on Ethereum (Sepolia) and Solana (Devnet).
 
 ---
 
-🧠 Overview
-
-Memex is a cross-chain memecoin designed to track and reflect the overall performance of the memecoin market.
-It combines an Ethereum ERC20 token with an off-chain Node.js indexer and optional Solana integration to adjust token supply dynamically based on memecoin index data.
-
-
----
-
-⚙️ Core Features
-
-Dynamic Supply ERC20 Token: Supply adjusts based on a memecoin market index.
-
-Off-chain Node.js Indexer: Fetches data from CoinGecko and triggers safe mint/burn events.
-
-Cross-Chain Ready: Optional Solana devnet integration for multi-chain liquidity.
-
-Safety Controls:
-
-pause/unpause mechanism
-
-Max 5% supply adjustment per operation
-
-Multisig and rate-limiting recommendations
-
-
-
+## 📦 What this bundle includes
+- `contracts/MemexToken.sol` — ERC20 contract with safe mint/burn and 5% per-op cap
+- `indexer/indexer.js` — Node.js indexer that fetches CoinGecko data and triggers mint/burn on Ethereum and mirrors on Solana
+- `scripts/deploy.js` — Hardhat deploy script for Sepolia
+- `test/test_memex.js` — Basic Hardhat test
+- `hardhat.config.js`, `package.json`, `.env.example`, `.gitignore`, `LICENSE`
+- `assets/logo.png` — placeholder logo file
 
 ---
 
-🧩 Technical Stack
-
-Ethereum: Solidity, Hardhat, Sepolia Testnet
-
-Off-chain: Node.js, CoinGecko API
-
-Cross-chain (optional): Solana (Rust SDK + Web3.js)
-
-Scripts: Deployment + Indexer automation
-
-Security: Role-based access + rate-limited execution
-
-
+## ⚠️ Important Safety Notes
+- **This bundle is configured to perform real mint/burn transactions** (Option A). Use only on testnets unless you fully understand the financial and security implications.
+- **Owner account must be a multisig in production.** Do NOT use an exposed single private key on mainnet.
+- Always test locally and on Sepolia/Devnet before any mainnet usage.
 
 ---
 
-🗂️ Project Structure
+## 🔧 Quick start (Sepolia + Solana Devnet)
 
-memex/
-│
-├── contracts/
-│   └── MemexToken.sol        # ERC20 contract with adaptive supply logic
-│
-├── scripts/
-│   ├── deploy.js             # Deploys token to Sepolia testnet
-│   └── test_indexer.js       # Simulates index-based supply adjustment
-│
-├── indexer/
-│   └── memex_indexer.js      # Node.js script fetching CoinGecko memecoin data
-│
-├── test/
-│   └── memex.test.js         # Hardhat unit tests for mint/burn logic
-│
-├── .gitignore
-├── hardhat.config.js
-├── package.json
-└── README.md
-
-
----
-
-🚀 How to Run Locally
-
-# 1️⃣ Clone the repository
-git clone https://github.com/ASMODEUS-REC/memex.git
-
-# 2️⃣ Install dependencies
+1. Install dependencies
+```bash
 npm install
+```
 
-# 3️⃣ Compile smart contracts
-npx hardhat compile
+2. Create `.env` from `.env.example` and fill keys (use testnet keys):
+```bash
+cp .env.example .env
+# Edit .env with your PRIVATE_KEY, ETH_RPC_URL, MEMEX_CONTRACT_ADDRESS (after deployment), and Solana keypair path
+```
 
-# 4️⃣ Run test suite
-npx hardhat test
-
-# 5️⃣ Start the off-chain indexer
-node indexer/memex_indexer.js
-
-
----
-
-🧪 Testing on Sepolia
-
-Use your Alchemy or Infura RPC key and a funded wallet.
-Update your .env file:
-
-PRIVATE_KEY=your_wallet_private_key
-API_URL=https://sepolia.infura.io/v3/YOUR_PROJECT_ID
-
-Then deploy:
-
+3. Deploy Memex to Sepolia
+```bash
 npx hardhat run scripts/deploy.js --network sepolia
+# copy the deployed contract address into .env as MEMEX_CONTRACT_ADDRESS
+```
 
+4. Create or copy your Solana keypair JSON to the path in .env (SOLANA_KEYPAIR_PATH). Fund the wallet on Devnet.
 
----
-
-🔗 Future Plans
-
-DAO governance integration
-
-Enhanced oracle-based pricing
-
-Cross-chain liquidity sync (Ethereum ↔ Solana ↔ Base)
-
-On-chain index publishing
-
-
+5. Start the indexer (it will perform real transactions per index signals)
+```bash
+node indexer/indexer.js
+```
 
 ---
 
-📜 License
+## 🔭 Cross-chain behavior (high level)
+- The indexer computes a weighted memecoin index from CoinGecko data.
+- When index change exceeds the configured threshold, the indexer computes a supply adjustment capped by contract max (5% default) and executes `safeMint` or `safeBurn` on Ethereum.
+- Optionally the same event can be mirrored by minting/burning an SPL token on Solana to simulate cross-chain reflection. The included code provides placeholders and guidance for SPL mint/burn flows.
 
-MIT License — free to use, modify, and build upon with credit.
+---
+
+## 🧩 How to customize
+- Edit `indexer/indexer.js` to change CoinGecko query parameters or index weighting.
+- Adjust `INDEX_THRESHOLD_BPS` and `MAX_ADJUST_BPS` in `.env` to tune sensitivity.
+- Replace owner address with a multisig contract for production governance.
+
+---
+
+## 🧑‍💻 Developer contacts
+**Samuel Bright Ososelase Ozallo** (Asmodeus) — officialmemex.project@gmail.com
+
+---
+
+## License
+MIT License © 2025 Samuel Bright Ososelase Ozallo
